@@ -1,10 +1,13 @@
 # Project LLM based Dungeon and Dragon TRPG game 
 
-* (간략히 프로젝트를 설명하고, 최종 목표가 무엇인지에 대해 기술)
+* LLM을 활용해서 서구권에서 인기있는 게임 장르인 TRPG게임의 Game master 역할을 맡게한다.
+* 사용자는 LLM이 제안하는 세계, 상황, 이벤트 들을 마주하면서 게임에 몰입하고
+* 제안된 목표를 자유롭게 클리어 하면서 게임을 마무리한다. 
 
 ## High Level Design
+![./project_architecture_metatdata/High_Level_Design_LLM_DnD.drawio.png]
 
-* (프로젝트 아키텍쳐 기술, 전반적인 diagram 으로 설명을 권장)
+![./project_architecture_metadata/sequence_workflow_LLM_DnD.png]
 
 ## Clone code
 
