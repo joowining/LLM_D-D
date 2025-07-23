@@ -5,7 +5,7 @@
 * 제안된 목표를 자유롭게 클리어 하면서 게임을 마무리한다. 
 
 ## High Level Design
-![LLM기반으로 이루어지는 Game의 High Level Design](./project_architecture_metatdata/High_Level_Design_LLM_DnD.png)
+![LLM기반으로 이루어지는 Game의 High Level Design](./project_architecture_metadata/High_Level_Design_LLM_DnD.png)
 
 ![전체적인 게임의 Workflow](./project_architecture_metadata/sequence_workflow_LLM_DnD.png)
 
