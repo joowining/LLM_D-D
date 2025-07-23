@@ -9,6 +9,7 @@
 
 ### issue 2. Core Systems
 - [ ] Player 생성 및 관리 시스템
+- [ ] Species 선택 시스템
 - [ ] Class 선택 시스템
 - [ ] 기본 게임 상태 관리
 
