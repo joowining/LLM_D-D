@@ -12,6 +12,7 @@ fastapi = ">=0.116.1, <0.117.0"
 langchain = "^0.3.27"
 langgraph = "^0.5.4"
 langchain-ollama = "^0.3.6"
+langchain-community = "^0.3.27"
 
 
 [tool.poetry.group.dev.dependencies]
