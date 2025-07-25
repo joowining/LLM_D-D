@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "llm-dnd"
+version = "0.1.0"
+description = "LLM based Dungeon and Dragon TRPG prompting game"
+authors = [ "joowon <developer.jw0103@gmail.com>"]
+readme = "README.md"
+# requires-python = ">=3.12"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+fastapi = ">=0.116.1, <0.117.0"
+langchain = "^0.3.27"
+langgraph = "^0.5.4"
+langchain-ollama = "^0.3.6"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+black = "^25.1.0"
+flake8 = "^7.3.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
