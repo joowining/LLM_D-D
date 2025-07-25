@@ -13,6 +13,7 @@ langchain = "^0.3.27"
 langgraph = "^0.5.4"
 langchain-ollama = "^0.3.6"
 langchain-community = "^0.3.27"
+transformers = "^4.53.3"
 
 
 [tool.poetry.group.dev.dependencies]
