@@ -21,7 +21,7 @@ def introduce_background_node(state: GameSessionState)-> GameSessionState:
     print(intro_script)
     summary = intro_prompts(
         origin = intro_script,
-        length = 10
+        length = 20
     )
     state["messages"] = summary
     state["game_pahse"] = "시작"
@@ -176,7 +176,15 @@ graph.add_node("initial_status_items", initial_status_items)
 graph.add_node("dive_into_game", dive_into_game)
 
 graph.add_edge(START, "introduction")
-graph.add_edge("introduction", "explanation")
+graph.add_conditional_edges(
+    "introduction",
+    question_left_router,
+    {
+        "again": "introduction",
+        "exit": "explanation"
+    }
+
+)
 graph.add_conditional_edges(
     "explanation",
     question_left_router,

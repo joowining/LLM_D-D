@@ -1,7 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate
-
-intro_script = """
-    🌟 에더리아 대륙의 전설 🌟
+🌟 에더리아 대륙의 전설 🌟
 📜 세계의 탄생과 번영의 시대
 오래전, 신들의 축복이 가득했던 에더리아 대륙에는 다섯 개의 위대한 종족이 조화롭게 살아가고 있었습니다.
 🏰 대통합 시대 (Ancient Unity Era)
@@ -95,17 +92,3 @@ intro_script = """
 종족 간의 오랜 분열을 치유하고, 어둠을 몰아내며, 잃어버린 황금시대를 되찾을 수 있는 것은 오직 당신과 같은 진정한 영웅뿐입니다.
 당신의 전설이 지금 시작됩니다! ⚔️✨
 """
-
-
-
-intro_prompts = ChatPromptTemplate(
-    input_variables=["origin", "length"],
-    template="""
-        당신은 Dungeon and Dragon 장르의 게임을 진행하고 있는 Master입니다. 
-        게임을 시작하기에 앞서 플레이어 들에게 게임의배경을 설명해야 합니다.  
-        원본의 내용은 너무 길어서 사용자가 읽기에 부담스럽습니다. 그래서 요약을 해야합니다. 
-        원본의 내용중에서 필수적인 내용들을 중심으로 요약해주세요. 
-        게임의 배경 스토리 원본 : {origin}
-        {length}줄로 요약해서 정리해주세요. 
-    """
-)

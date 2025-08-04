@@ -17,6 +17,11 @@ transformers = "^4.53.3"
 psycopg = {extras = ["binary"], version = "^3.2.9"}
 pgvector = "^0.4.1"
 redis = "^6.2.0"
+chromadb = "^1.0.15"
+sentence-transformers = "^5.0.0"
+langchain-huggingface = "^0.3.1"
+pypdf = "^5.9.0"
+langchain-chroma = "^0.2.5"
 
 
 [tool.poetry.group.dev.dependencies]

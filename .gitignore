@@ -30,3 +30,10 @@ $RECYCLE.BIN/
 *~
 *.swp
 *.swo
+
+
+# sqlite DB
+*.sqlite3
+
+# vector DB
+/src/chroma_db_exaone/
