@@ -20,5 +20,5 @@ class GameSessionState(TypedDict):
     story_summary: str
     # 하나의 노드에서 질문이 몇번 이루어졌는지 체크
     question_time: Annotated[int, lambda x: x>=0] = 0 
-
+    cache_box: dict
 

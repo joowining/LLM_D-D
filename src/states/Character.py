@@ -8,4 +8,5 @@ class CharacterState(TypedDict):
     race: RaceEnum
     profession: ProfessionEnum
     status: Status
-    
+    location_type: str
+    location: str

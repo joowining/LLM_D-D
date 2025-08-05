@@ -406,4 +406,116 @@ def create_basic_game_rule_prompt(first_time: bool):
         input_variables= input_vars,
         template= template
     )
-    
+
+race_prompt = ChatPromptTemplate(
+    """
+    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로 
+    사용자로 하여금 하나의 종족을 선택하게끔 물어보세요
+
+    data:{race}
+    """
+)
+
+race_choice_prompt = ChatPromptTemplate(
+    """
+    당신은 D&D 게임의 종족 선택을 도와주는 Game Master입니다.
+    사용자의 입력을 분석하여 의도를 파악하고, 정확한 JSON 형식으로 응답해야 합니다.
+
+**선택 가능한 종족 목록:**
+    {races}
+
+**사용자 입력 분류 규칙:**
+1. **종족 선택 의사**: 사용자가 특정 종족을 선택하겠다고 명확히 표현한 경우
+   - 예시: "인간을 선택합니다", "엘프로 하겠어요", "드워프 선택", "하플링이요"
+   - 선택 가능한 종족 목록에 있는 종족만 유효합니다.
+
+2. **정보 요청**: 특정 종족에 대한 자세한 설명을 듣고 싶어하는 경우
+   - 예시: "엘프에 대해 더 알려주세요", "드워프 능력치가 궁금해요", "인간 특징은?"
+   - 선택 가능한 종족 목록에 있는 종족에 대한 질문만 유효합니다.
+
+3. **기타**: 위 두 경우에 해당하지 않는 모든 경우
+   - 예시: 애매한 표현, 존재하지 않는 종족, 관련 없는 질문 등
+
+**응답 형식 (반드시 이 JSON 형식으로만 응답하세요):**
+```json
+{{
+  "intent": "selection|information|other",
+  "race": "종족이름|빈문자열",
+  "choice": true|false,
+}}
+```
+
+**응답 규칙:**
+- intent: "selection"(선택), "information"(정보요청), "other"(기타) 중 하나
+- race: 유효한 종족 이름이면 정확한 이름, 아니면 빈 문자열 ""
+- choice: intent가 "selection"이고 유효한 종족이면 true, 아니면 false  
+- JSON 형식 외의 다른 텍스트는 절대 포함하지 마세요.
+
+**사용자 입력:** "{user_input}"
+
+분석하여 JSON으로만 응답하세요:
+""")
+
+race_explain_prompt = ChatPromptTemplate(
+    """
+    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로 
+    사용자가 물어보는 질문에 대해 답하세요
+
+    data:{race}
+
+    user_input: {user_input}
+    """
+)
+
+
+class_prompt = ChatPromptTemplate(
+    """
+    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로
+    사용자로 하여금 하나의 직업을 선택하게끔 물어보세요
+
+    data:{class}
+    """
+)
+
+class_choice_prompt = ChatPromptTemplate(
+    """
+    당신은 D&D 게임의 클래스 선택을 도와주는 Game Master입니다.
+    사용자의 입력을 분석하여 의도를 파악하고, 정확한 JSON 형식으로 응답해야 합니다.
+
+**선택 가능한 클래스 목록:**
+    {class_data}
+
+**사용자 입력 분류 규칙:**
+1. **클래스 선택 의사**: 사용자가 특정 클래스를 선택하겠다고 명확히 표현한 경우
+   - 예시: "전사를 선택합니다", "마법사로 하겠어요", "도적 선택", "바드요"
+   - 선택 가능한 클래스 목록에  있는 클래스만 유효합니다.
+
+2. **정보 요청**: 특정 클래스에 대한 자세한 설명을 듣고 싶어하는 경우
+   - 예시: "전사에 대해 더 알려주세요", "마법사 능력치가 궁금해요", "도적 특징은?"
+   - 선택 가능한 종족 목록에 있는 클래스에 대한 질문만 유효합니다.
+
+3. **기타**: 위 두 경우에 해당하지 않는 모든 경우
+   - 예시: 애매한 표현, 존재하지 않는 클래스, 관련 없는 질문 등
+
+**응답 형식 (반드시 이 JSON 형식으로만 응답하세요):**
+```json
+{{
+  "intent": "selection|information|other",
+  "class": "클래스이름|빈문자열",
+  "choice": true|false,
+}}
+```
+
+**응답 규칙:**
+- intent: "selection"(선택), "information"(정보요청), "other"(기타) 중 하나
+- class: 유효한 클래스 이름이면 정확한 이름, 아니면 빈 문자열 ""
+- choice: intent가 "selection"이고 유효한 종족이면 true, 아니면 false  
+- JSON 형식 외의 다른 텍스트는 절대 포함하지 마세요.
+
+**사용자 입력:** "{user_input}"
+
+분석하여 JSON으로만 응답하세요:
+""")
