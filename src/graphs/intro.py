@@ -1,58 +1,106 @@
 from langgraph.graph import StateGraph, START, END
-#from llm.llm_setting import ChatModel
+from llm.llm_setting import ChatModel, LLM
 from states.GameSession import GameSessionState
+from enums.phase import GamePhase
 
-# graph 시각화
+# graph 시각화용 패키지
 from IPython.display import Image, display
 
-from prompts.intro_prompt import intro_prompts,intro_script
+from prompts.intro_prompt import intro_script, basic_game_script,create_intro_prompt, create_basic_game_rule_prompt
+from utils.intent_analysis import classify_intent
+from util_node import get_user_input_node
 
-"""
-핵심 내용:
-
-세계관 설정: "에더리아 대륙"이라는 판타지 세계, 고대 마법이 깃든 신비로운 땅
-현재 상황: 고대의 어둠이 다시 깨어나 대륙 전체가 위험에 빠진 상황
-플레이어의 역할: 용감한 모험가로서 세계를 구원해야 하는 사명
-분위기 조성: "운명이 당신을 이곳으로 이끌었습니다" 같은 몰입감 있는 표현
-시각적 묘사: 신비로운 안개, 고대 유적, 마법의 기운이 감도는 풍경 등
-"""
+#####
 def introduce_background_node(state: GameSessionState)-> GameSessionState:
     """현재 게임에 대한 배경을 설명"""
-    print(intro_script)
-    summary = intro_prompts(
-        origin = intro_script,
-        length = 20
-    )
-    state["messages"] = summary
-    state["game_pahse"] = "시작"
-    return state
+    # state 값 가져오기
+    current_question_time = state["question_time"]
 
-"""
-핵심 내용:
+    # stage 1. 동적프롬프트 완성
+    formatted_prompt = None 
 
-게임 목표: 고대의 어둠을 물리치고 에더리아 대륙의 평화를 되찾기
-플레이 방식: 텍스트 기반 대화형 RPG, 선택에 따른 스토리 분기
-능력치 시스템: 힘, 민첩, 지능, 체력, 지혜, 매력 등 6가지 스탯
-전투 시스템: 턴제 전투, 주사위 굴림을 통한 확률적 결과
-클리어 조건: 최종 보스 처치, 모든 지역의 평화 회복
-게임오버 조건: 캐릭터 HP 0, 중요한 퀘스트 실패, 돌이킬 수 없는 선택
-"""
+    if current_question_time:
+        intro_prompts = create_intro_prompt(True)
+        formatted_prompt = intro_prompts.invoke({
+            "origin": intro_script,
+            "length": 20,
+        })
+    else:
+        intro_prompts = create_intro_prompt(False)
+        formatted_prompt = intro_prompts.invoke({
+            "origin": intro_script,
+            "usr_input": state["messages"][-1]
+        })
+
+    # stage 2. LLM으로부터 응답생성
+    response = ChatModel.invoke(formatted_prompt) 
+    summary = response.content
+
+    ## 생성한 내용을 출력
+    print(summary)
+    # stage 4. 게임의 상태값 변경 
+    return {
+        "question_time": current_question_time + 1,
+        "system_messages": [summary], # 리스트로 반환하여 add_messages활용
+        "game_phase": GamePhase.introduction
+    }
+
+######
 def explain_game_condition_node(state: GameSessionState)-> GameSessionState:
     """게임을 플레이하는 방법과 클리어 조건과 게임 오버 조건 설명"""
+    # state값 가져오기
+    current_question_time = state["question_time"]
 
-    return state
+    # stage 1. 동적프롬프트 완성
+    formatted_prompt = None 
 
+    if current_question_time:
+        game_prompts = create_basic_game_rule_prompt(True)
+        formatted_prompt = game_prompts.invoke({
+            "origin": basic_game_script,
+            "length": 20,
+        })
+    else:
+        game_prompts = create_basic_game_rule_prompt(False)
+        formatted_prompt = game_prompts.invoke({
+            "origin": basic_game_script,
+            "usr_input": state["messages"][-1]
+        })
 
-def question_left_router(state: GameSessionState):
-    """사용자에게 현재 섹션에 대하여 질문이 남아 있는지 확인"""
-    intent =""
+    # stage 2. LLM으로부터 응답생성
+    response = ChatModel.invoke(formatted_prompt) 
+    summary = response.content
+
+    ## 생성한 내용을 출력
+    print(summary)
     
+    return {
+        "question_time": current_question_time + 1,
+        "system_messages": [summary],
+        "game_phase": GamePhase.introduction
+    }
+
+def reset_question_time_node(state: GameSessionState)-> GameSessionState:
+    """해당 노드에서 question이 종료될 때 리셋"""
+
+    return {
+        "question_time": 0
+    }
+
+
+####
+def question_left_router(state: GameSessionState):
+    """state로부터 값을 확인한 다음 조건 비교를 통해 다음 노드를 결정"""
+    latest_message = state["messages"][-1] if state["messages"] else ""
+    intent = classify_intent(latest_message)
+
     if intent == "POSITIVE":
         return "again"
     elif intent == "NEGATIVE":
         return  "exit"
     else:
         return "again"
+
 
 """
 핵심 내용:
@@ -168,6 +216,9 @@ def dive_into_game(state: GameSessionState)-> GameSessionState:
 
 graph = StateGraph(GameSessionState)
 graph.add_node("introduction", introduce_background_node)
+graph.add_node("reset_question_time",reset_question_time_node)
+graph.add_node("user_input", get_user_input_node)
+graph.add_node("question_router",question_left_router)
 graph.add_node("explanation", explain_game_condition_node)
 graph.add_node("choose_race", choose_race)
 graph.add_node("choose_class", choose_class)
@@ -176,23 +227,26 @@ graph.add_node("initial_status_items", initial_status_items)
 graph.add_node("dive_into_game", dive_into_game)
 
 graph.add_edge(START, "introduction")
+graph.add_edge("introduction", "user_input")
 graph.add_conditional_edges(
-    "introduction",
+    "user_input",
     question_left_router,
     {
         "again": "introduction",
-        "exit": "explanation"
+        "exit": "reset_question_time"
     }
-
 )
+graph.add_edge("reset_question_time","explanation")
+graph.add_edge("explanation","user_input")
 graph.add_conditional_edges(
-    "explanation",
+    "user_input",
     question_left_router,
     {
         "again": "explanation",
-        "exit": "choose_race"
+        "exit": "reset_question_time"
     }
 )
+
 graph.add_conditional_edges(
     "choose_race",
     question_about_race,
@@ -216,13 +270,18 @@ graph.add_edge("dive_into_game", END)
 
 result_graph = graph.compile()
 
+
+def test_intro():
+    pass
+
 if __name__ == "__main__":
-    try:
-        png_data = result_graph.get_graph().draw_mermaid_png()
-        with open("intro_graph.png", "wb") as f:
-            f.write(png_data)
-        print("intro graph is saved as intro_graph.png")
-    except Exception as e:
-        print(f" PNG save failed: {e}")
-        print("ASCII TEXT visualization")
-        print(result_graph.get_graph().draw_ascii())
+    # try:
+    #     png_data = result_graph.get_graph().draw_mermaid_png()
+    #     with open("intro_graph.png", "wb") as f:
+    #         f.write(png_data)
+    #     print("intro graph is saved as intro_graph.png")
+    # except Exception as e:
+    #     print(f" PNG save failed: {e}")
+    #     print("ASCII TEXT visualization")
+    #     print(result_graph.get_graph().draw_ascii())
+    test_intro()
