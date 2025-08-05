@@ -34,6 +34,7 @@ $RECYCLE.BIN/
 
 # sqlite DB
 *.sqlite3
+*.db
 
 # vector DB
 /src/chroma_db_exaone/
