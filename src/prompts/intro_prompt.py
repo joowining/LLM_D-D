@@ -416,16 +416,19 @@ race_explain_prompt = ChatPromptTemplate.from_template(
 
 
 class_prompt = ChatPromptTemplate.from_template(
-    """
-    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
-    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터와
-    현재 진행중인 게임의 맥락을 바탕으로
-    사용자로 하여금 하나의 직업을 선택하게끔 물어보세요
+   """
+   당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
+   다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터와
+   현재 진행중인 게임의 맥락을 바탕으로
+   사용자로 하여금 하나의 직업을 선택하게끔 물어보세요
 
-    data:{class}
+   사용자에게 data로부터 읽어온 내용을 바탕으로 
+   구체적으로 선택할 수 있는 직업들을 나열학모 그 직업들의 description으로부터 장점 및 단점, 플레이 방식에 대한 내용을 덧붙여서 설명해주세요 
 
-    game_context: {context}
-    """
+   data:{class}
+
+   game_context: {context}
+   """
 )
 
 class_choice_prompt = ChatPromptTemplate.from_template(
