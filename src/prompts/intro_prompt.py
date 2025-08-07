@@ -402,10 +402,13 @@ race_choice_prompt = ChatPromptTemplate.from_template(
 race_explain_prompt = ChatPromptTemplate.from_template(
     """ 
     당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
-    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로 
+    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터와 
+    현재 진행중인 게임의 맥락을 바탕으로 
     사용자가 물어보는 질문에 대해 답하세요
 
     data:{race}
+
+    game_context: {context}
 
     user_input: {user_input}
     """
@@ -415,10 +418,13 @@ race_explain_prompt = ChatPromptTemplate.from_template(
 class_prompt = ChatPromptTemplate.from_template(
     """
     당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
-    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로
+    다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터와
+    현재 진행중인 게임의 맥락을 바탕으로
     사용자로 하여금 하나의 직업을 선택하게끔 물어보세요
 
     data:{class}
+
+    game_context: {context}
     """
 )
 
@@ -471,9 +477,11 @@ class_choice_prompt = ChatPromptTemplate.from_template(
 
 CHARACTER_NAME_REQUEST_PROMPT = ChatPromptTemplate.from_template("""
 당신은 DnD(Dungeons & Dragons) 장르의 TRPG를 진행중인 게임 마스터역할의 AI입니다.
-
 새로운 모험가가 이 판타지 세계에 입장하려 합니다. 
+다음의 게임의 맥락을 이해한 후 그 바탕으로 사용자가 판타지세계에 적응할 수 있도록 이름을 저장하게 
 모험가에게 친근하고 흥미롭게 캐릭터의 이름을 물어보세요.
+                                                                 
+game_context{context}
 
 다음과 같은 요소들을 포함하여 응답해주세요:
 - 캐릭터 이름의 중요성에 대한 설명
@@ -485,7 +493,7 @@ CHARACTER_NAME_REQUEST_PROMPT = ChatPromptTemplate.from_template("""
 
 CHARACTER_NAME_VALIDATION_PROMPT = ChatPromptTemplate.from_template("""
 당신은 DnD(Dungeons & Dragons) 장르의 TRPG를 진행중인 게임 마스터역할의 AI입니다.
-
+                                                                    
 사용자가 입력한 내용을 분석하여 캐릭터 이름으로 적절한지 판단해주세요.
 
 사용자 입력: "{user_input}"
@@ -518,7 +526,11 @@ CHARACTER_NAME_VALIDATION_PROMPT = ChatPromptTemplate.from_template("""
 GAME_START_PROMPT = ChatPromptTemplate.from_template(
     """
     당신은 DnD(Dungeons & Dragons) 장르의 전문 게임 마스터역할의 AI입니다.
-    새로운 게임 세션을 시작하며, 캐릭터의 현재 상태와 위치를 바탕으로 몰입감 있는 오프닝 시나리오를 작성해주세요.
+    새로운 게임 세션을 시작하며,
+    현재 게임의 맥락과 사용자의 상황을 다음과 같은 내용으로부터 이해한 다음
+    캐릭터의 현재 상태와 위치를 바탕으로 몰입감 있는 오프닝 시나리오를 작성해주세요.
+
+    game_context:{context}
 
     == 캐릭터 정보 ==
     이름: {character_name}

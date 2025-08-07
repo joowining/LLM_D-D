@@ -53,7 +53,8 @@ def introduce_background_node(state: GameSessionState)-> GameSessionState:
     return {
         "question_time": current_question_time + 1,
         "system_messages": [summary], # 리스트로 반환하여 add_messages활용
-        "game_phase": GamePhase.introduction
+        "game_phase": GamePhase.introduction,
+        "game_context": [summary]
     }
 
 ######
@@ -120,7 +121,8 @@ def explain_race(state: GameSessionState)-> GameSessionState:
     print("place : explain_race")
     """종족에 대한 데이터를 바탕으로 프롬프트 생성 """
     race_data = db.get_all_races()
-    formatted_prompt = race_prompt.invoke({"race":race_data}) 
+    context = state["game_context"]
+    formatted_prompt = race_prompt.invoke({"race":race_data, "context":context}) 
     response = ChatModel.invoke(formatted_prompt) 
     # 생성한 내용을 출력
     print(response.content)
@@ -191,7 +193,8 @@ def explain_class(state: GameSessionState) -> GameSessionState:
     print("place : explain_class")
     """직업에 대한 데이터를 바탕으로 프롬프트 생성"""
     class_data = db.get_all_classes()
-    formatted_prompt = class_prompt.invoke({"class":class_data})
+    context = state["game_context"]
+    formatted_prompt = class_prompt.invoke({"class":class_data, "context":context})
     response = ChatModel.invoke(formatted_prompt)
     # 생성한 내용을 출력
     print(response.content)
@@ -260,7 +263,8 @@ def enter_character_name(state: GameSessionState)-> GameSessionState:
     print("place : enter_character_name")
     """"""
     # llm output
-    message = CHARACTER_NAME_REQUEST_PROMPT.format()
+    context = state["game_context"]
+    message = CHARACTER_NAME_REQUEST_PROMPT.invoke({"context":context})
     guidance_message = ChatModel.invoke(message)
     print(guidance_message.content)
 
@@ -406,6 +410,7 @@ def dive_into_game(state: GameSessionState)-> GameSessionState:
         "attack_item": character["attack_item"],
         "defense_item": character["defense_item"],
         "game_phase": state["game_phase"].value if hasattr(state["game_phase"], 'value') else str(state["game_phase"]),
+        "context": state["game_context"]
     }
 
     chain = GAME_START_PROMPT | ChatModel

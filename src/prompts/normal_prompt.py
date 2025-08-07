@@ -42,6 +42,6 @@ NORMAL_VALIDATION_PROMPT = ChatPromptTemplate.from_template(
     }}
     ```
     
-    반드시 위의 JSON 형식으로만 응답하고, 추가 설명은 포함하지 마세요.
+    반드시 위의 JSON 형식으로만 응답하고, 추가 설명은 포함하지 마세요.. '''이나, json이라고 붙이지 말고 그냥 하나의 중괄호로만 json콘텐츠를 감싸서 반환하세요
     """
 )
