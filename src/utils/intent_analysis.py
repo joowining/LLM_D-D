@@ -1,6 +1,8 @@
-def classify_intent(text: str) -> str:
+from langchain_core.messages import HumanMessage
+
+def classify_intent(message: HumanMessage) -> str:
     """간단한 의도 분류"""
-    text = text.lower().strip()
+    text = message.content.lower().strip()
     
     # 긍정적 응답
     if any(word in text for word in ["네", "그래", "예", "yes", "y", "계속", "더","알았어", "알았", "알겠"]):

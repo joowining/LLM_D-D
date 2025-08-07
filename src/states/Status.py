@@ -6,6 +6,7 @@ class Status(TypedDict):
     mentality: int
     luck: int
     intelligence: int
-    hp: int
+    base_hp: int
+    current_hp: int
 
 

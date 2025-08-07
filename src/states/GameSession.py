@@ -5,6 +5,7 @@ from enums.phase import GamePhase
 from langgraph.graph.message import add_messages
 
 
+
 class GameSessionState(TypedDict):
     # 사용자의 요청메세지 리스트
     messages: Annotated[List[str], add_messages]
@@ -19,6 +20,6 @@ class GameSessionState(TypedDict):
     # game_context전체와 이전까지의 story_summary를 요약한 내용
     story_summary: str
     # 하나의 노드에서 질문이 몇번 이루어졌는지 체크
-    question_time: Annotated[int, lambda x: x>=0] = 0 
+    question_time: int = 0 
     cache_box: dict
 

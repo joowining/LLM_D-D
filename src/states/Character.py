@@ -10,3 +10,5 @@ class CharacterState(TypedDict):
     status: Status
     location_type: str
     location: str
+    attack_item: str
+    defense_item: str

@@ -287,109 +287,57 @@ basic_game_script = """
 이제 플레이어가 게임을 시작할 준비가 되었습니다. 캐릭터 생성부터 시작하여 이 판타지 세계로의 모험을 안내해주세요!
 """
 
-
-intro_prompts = ChatPromptTemplate(
-    input_variables=["origin", "length","first_time", "usr_input"],
-    template = """
-        당신은 Dungeon and Dragon 장르의 게임을 진행하고 있는 Master입니다. 
-        게임을 시작하기에 앞서 플레이어 들에게 게임의 배경과 이야기들을 설명해야 합니다.  
-        원본 : {origin}과 {first_time} 기준으로 아래의 조건부로 요구사항을 이행하세요
-
-        만약 {first_time}이 참, True 값일 경우 다음의 중괄호 안의 내용대로 요약을 시도하세요
-        {first_time}이 거짓, False일 경우에는 중괄호안에 있는 내용은 무시하세요
-        {
-            원본의 내용은 너무 길어서 사용자가 읽기에 부담스럽습니다. 그래서 요약을 해야합니다. 
-            원본의 내용중에서 필수적인 내용들을 중심으로 요약해주세요. 
-            {length}줄로 요약해서 정리해주세요.
-        } 
-        만약 {first_time}이 참이라면 여기서부터 다음줄은 무시하세요
-        그러나 {first_time}이 거짓이라면 다음 중괄호에 있는 내용대로 내용을 출력하세요
-        {
-            사용자는 당신이 요약한 내용을 보고 불완전함을 느끼고 궁금한 내용이 있습니다. 다음의 사용자 질문을 읽고
-            원본의 내용을 바탕으로 질문에 답하세요. 
-            원본과 무관한 내용이거나 원본으로부터 답할 수 없는 내용은 무시하고 대답할 수 없다고 응답하세요 
-            사용자 질문 : {usr_input} 
-        } 
-    """
-)
-
 def create_intro_prompt(first_time: bool):
     if first_time:
         template = """
-        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다. 
+        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다. 
         게임을 시작하기에 앞서 플레이어들에게 게임의 배경과 이야기들을 설명해야 합니다.  
         
         원본: {origin}
         
         원본의 내용은 너무 길어서 사용자가 읽기에 부담스럽습니다. 
         원본의 내용 중에서 필수적인 내용들을 중심으로 {length}줄로 요약해서 정리해주세요.
-        마지막 문장에는 사용자로 하여금 이해되었는지, 게임을 진행해도 괜찮은지 더 이상 질문이 없는지 물어보세요 
+        마지막엔 다음과 같은 말로 마무리하세요
+        "질문이 있다면 해주시고 아니면 계속 진행할까요?" 
         """
-        input_vars = ["origin", "length"]
+        return ChatPromptTemplate.from_template(template)
     else:
         template = """
-        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
         
         원본: {origin}
         
         사용자는 요약한 내용을 보고 불완전함을 느끼고 궁금한 내용이 있습니다. 
         다음의 사용자 질문을 읽고 원본의 내용을 바탕으로 질문에 답하세요. 
         원본과 무관한 내용이거나 원본으로부터 답할 수 없는 내용은 무시하고 대답할 수 없다고 응답하세요.
-        마지막 문장에는 사용자로 하여금 이해되었는지, 게임을 진행해도 괜찮은지 더 이상 질문이 없는지 물어보세요 
-        
+        마지막엔 다음과 같은 말로 마무리하세요
+        "질문이 있다면 해주시고 아니면 계속 진행할까요?" 
+
         사용자 질문: {usr_input}
         """
-        input_vars = ["origin", "usr_input"]
+        return ChatPromptTemplate.from_template(template)
     
-    return ChatPromptTemplate(
-        input_variables=input_vars,
-        template=template
-    )
 
-basic_game_prompts = ChatPromptTemplate(
-    input_variables=["origin", "length","first_time", "usr_input"],
-    template = """
-        당신은 Dungeon and Dragon 장르의 게임을 진행하고 있는 Master입니다. 
-        게임을 시작하기에 앞서 플레이어 들에게 게임의 설정들을 설명해야 합니다.  
-        원본 : {origin}과 {first_time} 기준으로 아래의 조건부로 요구사항을 이행하세요
-
-        만약 {first_time}이 참, True 값일 경우 다음의 중괄호 안의 내용대로 요약을 시도하세요
-        {first_time}이 거짓, False일 경우에는 중괄호안에 있는 내용은 무시하세요
-        {
-            원본의 내용은 너무 길어서 사용자가 읽기에 부담스럽습니다. 그래서 요약을 해야합니다. 
-            원본의 내용중에서 필수적인 내용들을 중심으로 요약해주세요. 
-            {length}줄로 요약해서 정리해주세요.
-        } 
-        만약 {first_time}이 참이라면 여기서부터 다음줄은 무시하세요
-        그러나 {first_time}이 거짓이라면 다음 중괄호에 있는 내용대로 내용을 출력하세요
-        {
-            사용자는 당신이 요약한 내용을 보고 불완전함을 느끼고 궁금한 내용이 있습니다. 다음의 사용자 질문을 읽고
-            원본의 내용을 바탕으로 질문에 답하세요. 
-            원본과 무관한 내용이거나 원본으로부터 답할 수 없는 내용은 무시하고 대답할 수 없다고 응답하세요 
-            사용자 질문 : {usr_input} 
-        } 
-    """
-)
 
 def create_basic_game_rule_prompt(first_time: bool):
     template = """"""
-    input_vars = [] 
 
     if first_time:
         template = """
-        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다. 
+        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다. 
         게임을 시작하기에 앞서 플레이어들에게 게임의 특징들과 설정, 룰을 설명해야 합니다.  
         
         원본: {origin}
         
         원본의 내용은 너무 길어서 사용자가 읽기에 부담스럽습니다. 
         원본의 내용 중에서 필수적인 내용들을 중심으로 {length}줄로 요약해서 정리해주세요.
-        마지막 문장에는 사용자로 하여금 이해되었는지, 게임을 진행해도 괜찮은지 더 이상 질문이 없는지 물어보세요 
+        마지막엔 다음과 같은 말로 마무리하세요
+        "질문이 있다면 해주시고 아니면 계속 진행할까요?" 
         """
-        input_vars = ["origin","length"] 
+        return ChatPromptTemplate.from_template(template)
     else:
         template = """
-        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+        당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
         
         원본: {origin}
         
@@ -400,16 +348,11 @@ def create_basic_game_rule_prompt(first_time: bool):
         
         사용자 질문: {usr_input}
         """
-        input_vars = [] 
+        return ChatPromptTemplate.from_template(template)
     
-    return ChatPromptTemplate(
-        input_variables= input_vars,
-        template= template
-    )
-
-race_prompt = ChatPromptTemplate(
+race_prompt = ChatPromptTemplate.from_template(
     """
-    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
     다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로 
     사용자로 하여금 하나의 종족을 선택하게끔 물어보세요
 
@@ -417,13 +360,13 @@ race_prompt = ChatPromptTemplate(
     """
 )
 
-race_choice_prompt = ChatPromptTemplate(
+race_choice_prompt = ChatPromptTemplate.from_template(
     """
-    당신은 D&D 게임의 종족 선택을 도와주는 Game Master입니다.
+    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
     사용자의 입력을 분석하여 의도를 파악하고, 정확한 JSON 형식으로 응답해야 합니다.
 
 **선택 가능한 종족 목록:**
-    {races}
+    {race_data}
 
 **사용자 입력 분류 규칙:**
 1. **종족 선택 의사**: 사용자가 특정 종족을 선택하겠다고 명확히 표현한 경우
@@ -438,13 +381,11 @@ race_choice_prompt = ChatPromptTemplate(
    - 예시: 애매한 표현, 존재하지 않는 종족, 관련 없는 질문 등
 
 **응답 형식 (반드시 이 JSON 형식으로만 응답하세요):**
-```json
 {{
   "intent": "selection|information|other",
   "race": "종족이름|빈문자열",
-  "choice": true|false,
+  "choice": true|false
 }}
-```
 
 **응답 규칙:**
 - intent: "selection"(선택), "information"(정보요청), "other"(기타) 중 하나
@@ -455,11 +396,12 @@ race_choice_prompt = ChatPromptTemplate(
 **사용자 입력:** "{user_input}"
 
 분석하여 JSON으로만 응답하세요:
+주의: JSON 이외의 텍스트는 절대 출력하지 마세요. '''이나, json이라고 붙이지 말고 그냥 하나의 중괄호로만 json콘텐츠를 감싸서 반환하세요
 """)
 
-race_explain_prompt = ChatPromptTemplate(
-    """
-    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+race_explain_prompt = ChatPromptTemplate.from_template(
+    """ 
+    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
     다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로 
     사용자가 물어보는 질문에 대해 답하세요
 
@@ -470,9 +412,9 @@ race_explain_prompt = ChatPromptTemplate(
 )
 
 
-class_prompt = ChatPromptTemplate(
+class_prompt = ChatPromptTemplate.from_template(
     """
-    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master입니다.
+    당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
     다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로
     사용자로 하여금 하나의 직업을 선택하게끔 물어보세요
 
@@ -480,9 +422,9 @@ class_prompt = ChatPromptTemplate(
     """
 )
 
-class_choice_prompt = ChatPromptTemplate(
+class_choice_prompt = ChatPromptTemplate.from_template(
     """
-    당신은 D&D 게임의 클래스 선택을 도와주는 Game Master입니다.
+    당신은 D&D 게임의 클래스 선택을 도와주는 Game Master역할의 AI입니다.
     사용자의 입력을 분석하여 의도를 파악하고, 정확한 JSON 형식으로 응답해야 합니다.
 
 **선택 가능한 클래스 목록:**
@@ -500,12 +442,19 @@ class_choice_prompt = ChatPromptTemplate(
 3. **기타**: 위 두 경우에 해당하지 않는 모든 경우
    - 예시: 애매한 표현, 존재하지 않는 클래스, 관련 없는 질문 등
 
+4. 한글로 사용자가 직업을 입력한 경우 다음의 영어로 대체해서 출력해주세요
+   - 예시 : 
+   - 바드 -> Bard
+   - 전사 -> Warrior
+   - 도적 -> Rogue
+   - 마법사 -> Mage
+
 **응답 형식 (반드시 이 JSON 형식으로만 응답하세요):**
 ```json
 {{
   "intent": "selection|information|other",
   "class": "클래스이름|빈문자열",
-  "choice": true|false,
+  "choice": true|false
 }}
 ```
 
@@ -517,5 +466,86 @@ class_choice_prompt = ChatPromptTemplate(
 
 **사용자 입력:** "{user_input}"
 
-분석하여 JSON으로만 응답하세요:
+주의: JSON 이외의 텍스트는 절대 출력하지 마세요. '''이나, json이라고 붙이지 말고 그냥 하나의 중괄호로만 json콘텐츠를 감싸서 반환하세요
 """)
+
+CHARACTER_NAME_REQUEST_PROMPT = ChatPromptTemplate.from_template("""
+당신은 DnD(Dungeons & Dragons) 장르의 TRPG를 진행중인 게임 마스터역할의 AI입니다.
+
+새로운 모험가가 이 판타지 세계에 입장하려 합니다. 
+모험가에게 친근하고 흥미롭게 캐릭터의 이름을 물어보세요.
+
+다음과 같은 요소들을 포함하여 응답해주세요:
+- 캐릭터 이름의 중요성에 대한 설명
+- 이름 입력에 대한 안내
+- 분위기를 돋우는 판타지적 표현
+
+응답은 2-3문장 정도로 간결하게 작성하세요.
+""")
+
+CHARACTER_NAME_VALIDATION_PROMPT = ChatPromptTemplate.from_template("""
+당신은 DnD(Dungeons & Dragons) 장르의 TRPG를 진행중인 게임 마스터역할의 AI입니다.
+
+사용자가 입력한 내용을 분석하여 캐릭터 이름으로 적절한지 판단해주세요.
+
+사용자 입력: "{user_input}"
+
+다음 기준으로 판단해주세요:
+1. 실제 이름으로 사용 가능한 문자열인가?
+2. 판타지 캐릭터 이름으로 적절한가?
+3. 부적절한 단어나 표현이 포함되지 않았는가?
+4. 길이가 적절한가? (2-20글자)
+
+판단 결과를 다음 형식으로 응답해주세요:
+- 적절한 이름인 경우: "VALID: [추출한 이름]"
+- 부적절한 이름인 경우: "INVALID: [부적절한 이유]"
+
+예시:
+- 사용자가 "아라곤"이라고 입력 → "{{"status":"VALID", "name": "아라곤"}}
+- 사용자가 "123"이라고 입력 → "{{"status":"INVALID", "reason": "숫자만으로는 캐릭터 이름으로 부적절합니다"}}
+- 사용자가 "내 이름은 엘프다"라고 입력 → "{{"status":"VALID", "name": "엘프"}}
+
+                                                                    
+**응답 형식: 반드시 아래 JSON 형식 중 하나로만 하세요**
+- 적절한 이름인 경우:
+  {{"status": "VALID", "name": "아라곤"}}
+- 부적절한 이름인 경우:
+  {{"status": "INVALID", "reason": "부적절한 이유"}}
+
+주의: JSON 이외의 텍스트는 절대 출력하지 마세요. '''이나, json이라고 붙이지 말고 그냥 하나의 중괄호로만 json콘텐츠를 감싸서 반환하세요
+""")
+
+GAME_START_PROMPT = ChatPromptTemplate.from_template(
+    """
+    당신은 DnD(Dungeons & Dragons) 장르의 전문 게임 마스터역할의 AI입니다.
+    새로운 게임 세션을 시작하며, 캐릭터의 현재 상태와 위치를 바탕으로 몰입감 있는 오프닝 시나리오를 작성해주세요.
+
+    == 캐릭터 정보 ==
+    이름: {character_name}
+    종족: {character_race}
+    직업: {character_profession}
+    현재 위치: {location} ({location_type})
+
+    == 캐릭터 상태 ==
+    체력: {current_hp}/{base_hp}
+    공격 무기: {attack_item}
+    방어구: {defense_item}
+
+    == 게임 진행 단계 ==
+
+    다음 요소들을 포함하여 게임을 시작하는 메시지를 작성해주세요:
+
+    1. **위치와 분위기 묘사**: {location}의 환경과 분위기를 생생하게 묘사
+    2. **캐릭터 현재 상황**: 캐릭터가 이곳에 있게 된 배경이나 현재 상태를 자연스럽게 언급
+    3. **게임 시작 선언**: 명확한 게임 개시 신호
+    4. **상호작용 유도**: 플레이어가 행동을 취할 수 있도록 상황 제시
+
+    응답 조건:
+    - DnD 세계관에 맞는 판타지적이고 분위기 있는 서술
+    - 플레이어의 선택을 유도하는 열린 결말
+    - 캐릭터의 직업과 종족 특성을 자연스럽게 반영
+    - 현재 위치의 특성을 활용한 상황 설정
+
+    **🎲 게임을 시작합니다! 🎲** 라는 문구로 시작해주세요.
+    """
+)
