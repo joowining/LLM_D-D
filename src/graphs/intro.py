@@ -43,7 +43,7 @@ def introduce_background_node(state: GameSessionState)-> GameSessionState:
         })
 
     # stage 2. LLM으로부터 응답생성
-    print("🤖 LLM 응답 생성 중...", flush=True)  # 중간 과정 출력
+    print("🤖 게임 마스터 응답 생성 중... 🤖", flush=True)  # 중간 과정 출력
     response = ChatModel.invoke(formatted_prompt) 
     summary = response.content
 

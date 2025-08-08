@@ -87,16 +87,25 @@ fn render_main_output_with_scroll(f: &mut Frame, app: &App, area: Rect) {
     // 메인 텍스트 출력
     let display_text = app.get_display_text();
     
-    let block_style = if app.is_typing {
-        Style::default().fg(Color::Green)
+    // 타이핑 중일 때와 일반 상태일 때 다른 스타일 적용
+    let (block_style, title, title_style) = if app.is_typing {
+        (
+            Style::default().fg(Color::Green),
+            "📜 게임 진행 중... ⌨️ 타이핑중",
+            Style::default().fg(Color::Yellow).add_modifier(Modifier::SLOW_BLINK)
+        )
+    } else if !app.typing_queue.is_empty() {
+        (
+            Style::default().fg(Color::Yellow),
+            "📜 게임 출력 (메시지 대기중...)",
+            Style::default().fg(Color::Yellow)
+        )
     } else {
-        Style::default().fg(Color::Gray)
-    };
-
-    let title = if app.is_typing {
-        "📜 게임 진행 중... ⌨️"
-    } else {
-        "📜 게임 출력"
+        (
+            Style::default().fg(Color::Gray),
+            "📜 게임 출력",
+            Style::default().fg(Color::Yellow)
+        )
     };
 
     let main_output = Paragraph::new(display_text)
@@ -104,7 +113,7 @@ fn render_main_output_with_scroll(f: &mut Frame, app: &App, area: Rect) {
             Block::default()
                 .borders(Borders::ALL)
                 .title(title)
-                .title_style(Style::default().fg(Color::Yellow))
+                .title_style(title_style)
                 .border_style(block_style)
         )
         .wrap(Wrap { trim: false })
@@ -113,8 +122,12 @@ fn render_main_output_with_scroll(f: &mut Frame, app: &App, area: Rect) {
 
     f.render_widget(main_output, output_chunks[0]);
 
+    let total_lines = app.output_lines.len() +
+        if app.is_typing { 1 } else { 0 } + 
+        if !app.typing_queue.is_empty() { 1 } else { 0 };
+
     // 스크롤바 렌더링
-    if app.output_lines.len() > app.max_display_lines {
+    if total_lines > app.max_display_lines {
         let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓"))
@@ -150,7 +163,11 @@ fn render_input_history(f: &mut Frame, app: &App, area: Rect) {
 
 fn render_user_input(f: &mut Frame, app: &App, area: Rect) {
     let input_text = if app.current_input.is_empty() {
-        "명령어를 입력하세요... (Enter: 실행, ↑/↓: 스크롤, ESC/Q: 종료)"
+        if app.is_typing {
+            "타이핑 진행 중... (Ctrl+Space: 건너뛰기, Ctrl+1/2/3: 속도조절)"
+        } else {
+            "명령어를 입력하세요... (Enter: 실행, ↑/↓: 스크롤, ESC/Q: 종료)"
+        }
     } else {
         &app.current_input
     };

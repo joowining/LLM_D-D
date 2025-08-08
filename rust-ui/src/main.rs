@@ -80,9 +80,13 @@ fn run_app(terminal: &mut Terminal<CrosstermBackend<std::io::Stdout>>, mut app: 
         terminal.draw(|f| ui::ui(f, &mut app))?;
 
         // 이벤트 처리
-        let timeout = tick_rate
-            .checked_sub(last_tick.elapsed())
-            .unwrap_or_else(|| Duration::from_secs(0));
+        let timeout = if app.is_typing {
+            Duration::from_millis(25)
+        } else {
+            tick_rate
+                .checked_sub(last_tick.elapsed())
+                .unwrap_or_else(|| Duration::from_secs(0))
+        };
 
         if event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
@@ -103,6 +107,22 @@ fn run_app(terminal: &mut Terminal<CrosstermBackend<std::io::Stdout>>, mut app: 
                         // 입력 전송
                         KeyCode::Enter => {
                             app.send_input();
+                        }
+
+                        // 타이핑 건너뛰기 
+                        KeyCode::Char(' ') if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL)=>{
+                            app.skip_typing();
+                        }
+
+                         // 타이핑 속도 조절
+                        KeyCode::Char('1') if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL) => {
+                            app.set_typing_speed_fast();
+                        }
+                        KeyCode::Char('2') if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL) => {
+                            app.set_typing_speed_normal();
+                        }
+                        KeyCode::Char('3') if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL) => {
+                            app.set_typing_speed_slow();
                         }
                         
                         // 문자 입력
