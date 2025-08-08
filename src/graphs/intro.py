@@ -23,7 +23,6 @@ db = DnDDatabase("/home/joowon/my_develop/LLM_DND/src/db/DnD.db")
 #####
 def introduce_background_node(state: GameSessionState)-> GameSessionState:
     """현재 게임에 대한 배경을 설명"""
-    print("place : introduce_background_node")
     # state 값 가져오기
     current_question_time = state["question_time"]
 
@@ -44,11 +43,13 @@ def introduce_background_node(state: GameSessionState)-> GameSessionState:
         })
 
     # stage 2. LLM으로부터 응답생성
+    print("🤖 LLM 응답 생성 중...", flush=True)  # 중간 과정 출력
     response = ChatModel.invoke(formatted_prompt) 
     summary = response.content
 
     ## 생성한 내용을 출력
     print(summary)
+
     # stage 4. 게임의 상태값 변경 
     return {
         "question_time": current_question_time + 1,
@@ -60,7 +61,6 @@ def introduce_background_node(state: GameSessionState)-> GameSessionState:
 ######
 def explain_game_condition_node(state: GameSessionState)-> GameSessionState:
     """게임을 플레이하는 방법과 클리어 조건과 게임 오버 조건 설명"""
-    print("place : explain_game_condition_node")
     # state값 가져오기
     current_question_time = state["question_time"]
 
@@ -85,7 +85,7 @@ def explain_game_condition_node(state: GameSessionState)-> GameSessionState:
     summary = response.content
 
     ## 생성한 내용을 출력
-    print(summary)
+    print(summary, flush=True)
     
     return {
         "question_time": current_question_time + 1,
@@ -94,7 +94,6 @@ def explain_game_condition_node(state: GameSessionState)-> GameSessionState:
     }
 
 def reset_question_time_node(state: GameSessionState)-> GameSessionState:
-    print("place : reset_question_time_node")
     """해당 노드에서 question이 종료될 때 리셋"""
 
     return {
@@ -104,7 +103,6 @@ def reset_question_time_node(state: GameSessionState)-> GameSessionState:
 
 ####
 def question_left_router(state: GameSessionState):
-    print("place : question_left_router")
     """state로부터 값을 확인한 다음 조건 비교를 통해 다음 노드를 결정"""
     latest_message = state["messages"][-1] if state["messages"] else ""
     intent = classify_intent(latest_message)
@@ -118,14 +116,13 @@ def question_left_router(state: GameSessionState):
 
 
 def explain_race(state: GameSessionState)-> GameSessionState:
-    print("place : explain_race")
     """종족에 대한 데이터를 바탕으로 프롬프트 생성 """
     race_data = db.get_all_races()
     context = state["game_context"]
     formatted_prompt = race_prompt.invoke({"race":race_data, "context":context}) 
     response = ChatModel.invoke(formatted_prompt) 
     # 생성한 내용을 출력
-    print(response.content)
+    print(response.content, flush=True)
     
     return {
         "system_messages": response.content
@@ -133,7 +130,6 @@ def explain_race(state: GameSessionState)-> GameSessionState:
 
 ####
 def race_choice_analysis(state: GameSessionState)-> GameSessionState:
-    print("place : race_choice_anlaysis")
     """이전 노드에서 사용자의 입력값을 바탕으로 종족 선택 여부 판단 및 해당 종족이 DB에 존재하는지 여부 판단"""
     user_input = state["messages"][-1] if state["messages"] else ""
     race_data = db.get_all_race_names()
@@ -156,9 +152,7 @@ def race_choice_analysis(state: GameSessionState)-> GameSessionState:
     }
 
 def race_choice_router(state: GameSessionState) -> str:
-    print("place : race_choice_router")
     """분석한 결과를 바탕으로 라우팅"""
-    print(f"race_choice_router in the cache_box:{state["cache_box"]}")
     intent = state["cache_box"]["intent"]
     choice = state["cache_box"]["choice"]
     user_input = state["messages"][-1]
@@ -171,14 +165,13 @@ def race_choice_router(state: GameSessionState) -> str:
             formatted_prompt = race_prompt.invoke({"race":race_data, "user_input":user_input}) 
             response = ChatModel.invoke(formatted_prompt)  
             # 생성한 내용을 출력
-            print(response.content)
+            print(response.content, flush=True)
         else:
             # 일반 내용 출력
-            print("다음의 설명을 보고 선택지 내의 적절한 종족을 선택하거나 물어봐주세요 ( 한글로 )")
+            print("다음의 설명을 보고 선택지 내의 적절한 종족을 선택하거나 물어봐주세요 ( 한글로 )",flush=True)
         return "again"
 
 def race_fix(state: GameSessionState) -> GameSessionState:
-    print("place : race_fix")
     old_character_state = state["character_state"]
     updated_character_state = {
         **old_character_state,
@@ -190,21 +183,19 @@ def race_fix(state: GameSessionState) -> GameSessionState:
 
 
 def explain_class(state: GameSessionState) -> GameSessionState:
-    print("place : explain_class")
     """직업에 대한 데이터를 바탕으로 프롬프트 생성"""
     class_data = db.get_all_classes()
     context = state["game_context"]
     formatted_prompt = class_prompt.invoke({"class":class_data, "context":context})
     response = ChatModel.invoke(formatted_prompt)
     # 생성한 내용을 출력
-    print(response.content)
+    print(response.content,flush=True)
 
     return {
         "system_messages": response.content
     }
 
 def class_choice_analysis(state: GameSessionState) -> GameSessionState:
-    print("place : class_choice_analysis")
     """이전 노드에서 사용자의 입력값을 바탕으로 클래스 선택 여부 판단 및 해당 종족이 DB에 존재하는지 여부 판단"""
     user_input = state["messages"][-1] if state["messages"] else ""
     class_data = db.get_all_class_names()
@@ -228,7 +219,6 @@ def class_choice_analysis(state: GameSessionState) -> GameSessionState:
     }
 
 def class_choice_router(state: GameSessionState)-> GameSessionState:
-    print("place : class_choice_router")
     """분석한 결과를 바탕으로 라우팅"""
     intent = state["cache_box"]["intent"]
     choice = state["cache_box"]["choice"]
@@ -241,13 +231,12 @@ def class_choice_router(state: GameSessionState)-> GameSessionState:
             class_data = db.get_all_classes()
             formatted_prompt = class_prompt.invoke({"class":class_data, "user_input":user_input}) 
             response = ChatModel.invoke(formatted_prompt)  
-            print(response.content)
+            print(response.content, flush=True)
         else:
-            print("다음의 설명을 보고 적절한 종족을 선택하거나 물어봐주세요 ")
+            print("다음의 설명을 보고 적절한 종족을 선택하거나 물어봐주세요 ", flush=True)
         return "again"
 
 def class_fix(state: GameSessionState)-> GameSessionState:
-    print("place : class_fix")
     old_character_state = state["character_state"]
     updated_character_state = {
         **old_character_state,
@@ -260,13 +249,12 @@ def class_fix(state: GameSessionState)-> GameSessionState:
 
 ##### 사용자에게 캐릭터 이름 입력 요구 
 def enter_character_name(state: GameSessionState)-> GameSessionState:
-    print("place : enter_character_name")
     """"""
     # llm output
     context = state["game_context"]
     message = CHARACTER_NAME_REQUEST_PROMPT.invoke({"context":context})
     guidance_message = ChatModel.invoke(message)
-    print(guidance_message.content)
+    print(guidance_message.content, flush=True)
 
     return {
         "system_messages": [guidance_message]
@@ -276,7 +264,6 @@ def enter_character_name(state: GameSessionState)-> GameSessionState:
 
 ### validation을 거쳐서 적절한 아이디인지 아닌지를 결정하는 conditional node
 def validate_character_name_router(state: GameSessionState) -> str:
-    print("place : validate_character_name_router")
     user_input = state["messages"]
 
     formatted_template = CHARACTER_NAME_VALIDATION_PROMPT.invoke({ "user_input":user_input})
@@ -285,12 +272,11 @@ def validate_character_name_router(state: GameSessionState) -> str:
     if result["status"] == "VALID":
         return "exit"
     else:
-        print(result["reason"])
+        print(result["reason"], flush=True)
         return "again"
 
 
 def extract_character_name_node(state: GameSessionState) -> GameSessionState:
-    print(f"place : {inspect.currentframe().f_code.co_name}")
     """별도 노드로 캐릭터 이름만 추출"""
     
     CHARACTER_EXTRACTION_PROMPT = ChatPromptTemplate.from_template(
@@ -337,7 +323,6 @@ def extract_character_name_node(state: GameSessionState) -> GameSessionState:
 
 
 def starting_location(state: GameSessionState)-> GameSessionState:
-    print(f"place : {inspect.currentframe().f_code.co_name}") 
     """선택한 종족에 따라 시작하는 마을이 선택되었음을 알리고 그 마을을 상태값에 저장"""
     old_character_state = state["character_state"]
     updated_character_state = {
@@ -366,7 +351,6 @@ def starting_location(state: GameSessionState)-> GameSessionState:
 능력치 총합 표시: 최종 스탯 정리 및 확인
 """
 def initial_status_items(state: GameSessionState) -> GameSessionState:
-    print(f"place : {inspect.currentframe().f_code.co_name}")
     """ 선택한 종족과 직업에 따라 보너스 스테이터스와 초기장비를 지급하고 그 내용을 상태값에 저장"""
     character_state = state.get("character_state",{})
     selected_race = character_state.get("race","")
@@ -396,7 +380,6 @@ def initial_status_items(state: GameSessionState) -> GameSessionState:
 
 
 def dive_into_game(state: GameSessionState)-> GameSessionState:
-    print(f"place : {inspect.currentframe().f_code.co_name}")
     """ CharacterState와 Status,위치를 알려주고 게임을 시작한다는 사인을 줌"""
     character = state["character_state"]
     prompt_data = {
@@ -416,7 +399,7 @@ def dive_into_game(state: GameSessionState)-> GameSessionState:
     chain = GAME_START_PROMPT | ChatModel
 
     response = chain.invoke(prompt_data)
-    print(response.content)
+    print(response.content,flush=True)
 
     return {
         "system_messages":[response.content],
@@ -546,11 +529,10 @@ def test_intro():
     
     try:
         result = result_graph.invoke(initial_state)
-        print("Graph execution completed successfully! \n ")
-        print("Final state:", result)
+        print("Graph execution completed successfully! \n ", flush=True)
         return result
     except Exception as e:
-        print(f"Error during graph execution: {e}")
+        print(f"Error during graph execution: {e}", flush=True)
         import traceback
         traceback.print_exc()
         return None 

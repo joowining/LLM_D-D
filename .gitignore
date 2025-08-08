@@ -38,3 +38,16 @@ $RECYCLE.BIN/
 
 # vector DB
 /src/chroma_db_exaone/
+
+
+# for rust project
+# 일반적으로 무시할 Cargo 빌드 아티팩트
+/target/
+rust-ui/target/
+
+# Cargo.lock은 라이브러리를 만드는 경우 무시
+# 애플리케이션을 만드는 경우에는 커밋해야 함
+# Cargo.lock
+
+# Rust 프로젝트에서 생길 수 있는 임시 파일들
+**/*.rs.bk

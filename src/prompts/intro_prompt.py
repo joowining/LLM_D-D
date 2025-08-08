@@ -355,6 +355,10 @@ race_prompt = ChatPromptTemplate.from_template(
     당신은 Dungeon and Dragon 장르의 TRPG를 진행하고 있는 Game Master역할의 AI입니다.
     다음에 제공되는 게임에서 선택할 수 있는 종족에 대한 데이터를 바탕으로 
     사용자로 하여금 하나의 종족을 선택하게끔 물어보세요
+    이 때 다음의 game context를 배경으로 하는 스토리를 바탕으로 race데이터의 description에 대한 이야기를 붙여서 
+    모든 종족들을 설명하고 사용자가 선택할 수 있게 제안하세요 
+
+    game_context:{context}
 
     data:{race}
     """
