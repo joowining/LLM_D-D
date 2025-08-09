@@ -8,6 +8,8 @@ from enums.phase import GamePhase
 
 # graph 시각화용 패키지
 from IPython.display import Image, display
+from PIL import Image as PILImage
+import io
 
 from prompts.intro_prompt import intro_script, basic_game_script,create_intro_prompt, create_basic_game_rule_prompt 
 from prompts.intro_prompt import race_prompt,race_choice_prompt, class_prompt, class_choice_prompt
@@ -417,7 +419,6 @@ graph.add_node("get_user_input_race", get_user_input_node)
 graph.add_node("get_user_input_class", get_user_input_node)
 graph.add_node("get_user_input_name", get_user_input_node)
 
-graph.add_node("validate_normal_user_input", validate_user_input_node)
 # 게임에 대한 전반적인 설명
 graph.add_node("introduction", introduce_background_node)
 graph.add_node("reset_question_time_intro",reset_question_time_node)
@@ -426,16 +427,13 @@ graph.add_node("explanation", explain_game_condition_node)
 # 캐릭터 종족 선택
 graph.add_node("explain_race", explain_race)
 graph.add_node("race_choice_analysis", race_choice_analysis)
-graph.add_node("race_router", race_choice_router)
 graph.add_node("race_fix", race_fix)
 # 캐릭터 직업 선택
 graph.add_node("explain_class", explain_class)
 graph.add_node("class_choice_analysis",class_choice_analysis)
-graph.add_node("class_router",class_choice_router)
 graph.add_node("class_fix",class_fix)
 # 캐릭터 이름입력
 graph.add_node("name_input_guidance", enter_character_name)
-graph.add_node("validate_character_name",validate_character_name_router)
 graph.add_node("extract_and_set_character_name", extract_character_name_node)
 
 # 게임 시작 직전 설정 적용 및 사용자에게 알려주기 
@@ -505,31 +503,11 @@ graph.add_edge("dive_into_game", END)
 result_graph = graph.compile()
 
 
-def test_intro():
-    # 초기 state 준비
-    initial_state = {
-        "messages": [],
-        "system_messages": [],
-        "character_state": {
-            "name": "",
-            "race": "",
-            "profession": "",
-            "status": {},
-            "location_type": "",
-            "location": "",
-            "attack_item": "",
-            "defense_item": ""
-        },
-        "game_phase": GamePhase.introduction,
-        "game_context": [],
-        "story_summary": "",
-        "question_time": 0,
-        "cache_box": {}
-    }
+def test_intro(initial_state: GameSessionState):
+
     
     try:
         result = result_graph.invoke(initial_state)
-        print("Graph execution completed successfully! \n ", flush=True)
         return result
     except Exception as e:
         print(f"Error during graph execution: {e}", flush=True)
@@ -547,4 +525,10 @@ if __name__ == "__main__":
     #     print(f" PNG save failed: {e}")
     #     print("ASCII TEXT visualization")
     #     print(result_graph.get_graph().draw_ascii())
-    test_intro()
+    #test_intro()
+    try:
+        png_graph = result_graph.get_graph().draw_mermaid_png()
+        image = PILImage.open(io.BytesIO(png_graph))
+        image.save("./intro_langgraph.png")
+    except Exception as e:
+        print(f"PNG시각화 오류 :{e}")

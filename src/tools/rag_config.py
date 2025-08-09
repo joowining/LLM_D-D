@@ -10,5 +10,6 @@ CONFIG = {
     #"llm_model": "exaone3.5:latest",
     "llm_model":"benedict/linkbricks-llama3.1-korean:8b",
     "rule_file": "./document_data/DND_Rulebook.pdf",
-    "story_file": "./document_data/background_story.txt"
+    "story_file": "./document_data/background_story.txt",
+    "village_story_file": "./document_data/village_story_stonebridge.txt"
 }

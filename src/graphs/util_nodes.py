@@ -35,6 +35,11 @@ def validate_user_input_node(state: GameSessionState):
 
 # 현재까지의 게임 상태를 요약해서 정리하는 노드 
 
-
+def summary_game_story_until_now(state:  GameSessionState):
+    """현재까지의 사용자의 입력과 출력한 기본 내용과 선택을 바탕으로 게임흐름을 요약하는 노드"""
+    pass
 
 # 현재까지 추가된 메세지들을 갯수를 기반으로 요약 정리하는 노드 
+def summary_user_input_from_latest_to_five(state: GameSessionState):
+    """지금까지의 사용자의 상호작용 내용을 요약하는 노드 """
+    pass
