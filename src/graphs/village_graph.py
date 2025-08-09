@@ -3,6 +3,12 @@ from states.GameSession import GameSessionState
 from langgraph.graph import StateGraph,START, END
 
 from graphs.util_nodes import get_user_input_node
+from prompts.village_prompt import village_raw_text
+from prompts.village_prompt import village_intro_prompt, village_user_input_analysis_prompt
+from prompts.village_prompt import village_look_around_RAG_prompt
+from prompts.village_prompt import village_npc_choice_analysis_prompt, village_npc_choice_prompt, village_npc_persona_prompt
+from prompts.village_prompt import village_other_question_prompt
+from llm.llm_setting import ChatModel
 
 # graph 시각화 내용
 from IPython.display import Image, display
@@ -11,10 +17,49 @@ import io
 
 ## node 정의 
 def village_basic_question(state: GameSessionState) -> GameSessionState:
-    pass
+    character_state = state["character_state"]
+    game_context = state["story_summary"]
+    formatted_template = village_intro_prompt.invoke({
+        "character_name": character_state["name"],
+        "race": character_state["race"], 
+        "class": character_state["profession"],
+        "context": game_context
+    })
+
+    response = ChatModel.invoke(formatted_template)
+    print(response.content)
+    return {
+        "system_messages":[response.content]
+    }
+
 
 def basic_question_analysis_router(state: GameSessionState) -> str:
-    pass
+    user_message = state["messages"][-1]
+    game_context = state["system_messages"][-1]
+
+    formatted_template = village_user_input_analysis_prompt.invoke({
+        "context": game_context,
+        "user_input":user_message
+    })
+
+    result = ChatModel.invoke(formatted_template).content
+    # "LOOKAROUND"
+    if result == "LOOKAROUND":
+        return result
+    # "TALKING"
+    elif result == "TALKING":
+        return result
+    # "OTHER"
+    elif result == "OTHER":
+        return result
+    # "GOTODUNGEON"
+    elif result == "GOTODUNGEON":
+        return result
+    else:
+        return "OTHER"
+
+
+
 
 def describe_about_village(state: GameSessionState) -> GameSessionState:
     pass

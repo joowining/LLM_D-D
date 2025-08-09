@@ -74,7 +74,10 @@ def main():
             },
             "game_phase": GamePhase.introduction,
             "game_context": [],
-            "story_summary": "",
+            "story_summary": """여러 종족들이 평화롭게 공존하던 에더리아 대륙에 
+                흑마법사의 사악한 마법으로 인해 어둠의 던전이 곳곳에 생겨나고 
+                모험가는 이를 클리어함으로써 던전을 정화하고 에더리아 대륙의 평화를 되찾아야 한다.
+                """,
             "question_time": 0,
             "cache_box": {}
         }
